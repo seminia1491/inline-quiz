@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>inline SDR 開發流程測驗 A3</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#f5f5f3;min-height:100vh;padding:2rem 1rem;color:#1a1a18}
+.container{max-width:680px;margin:0 auto}
+.header{text-align:center;margin-bottom:2rem}
+.header h1{font-size:22px;font-weight:500;margin-bottom:.4rem}
+.header p{font-size:14px;color:#73726c}
+.card{background:#fff;border-radius:16px;border:0.5px solid rgba(0,0,0,0.1);padding:1.75rem}
+.pb{height:4px;background:#e8e6df;border-radius:2px;margin-bottom:1.5rem}
+.pf{height:4px;background:#1D9E75;border-radius:2px;transition:width .4s}
+.qm{display:flex;align-items:center;gap:8px;margin-bottom:.75rem;flex-wrap:wrap}
+.qb{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px}
+.bmc{background:#E1F5EE;color:#0F6E56}.bsc{background:#EEEDFE;color:#534AB7}
+.qn{font-size:13px;color:#73726c}
+.qt{font-size:16px;font-weight:500;line-height:1.55;margin-bottom:1.25rem}
+.qctx{font-size:13px;color:#5f5e5a;background:#f5f5f3;border-left:3px solid #1D9E75;padding:.75rem 1rem;border-radius:0 8px 8px 0;margin-bottom:1.25rem;line-height:1.6}
+.opts{display:flex;flex-direction:column;gap:8px;margin-bottom:1.5rem}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:.75rem 1rem;border:0.5px solid rgba(0,0,0,0.12);border-radius:10px;cursor:pointer;background:#fff;transition:background .15s}
+.opt:hover{background:#f5f5f3}
+.opt.sel{border-color:#1D9E75;background:#E1F5EE}
+.opt.ok{border-color:#1D9E75;background:#E1F5EE;cursor:default}
+.opt.no{border-color:#E24B4A;background:#FCEBEB;cursor:default}
+.opt.ok .ol{background:#1D9E75;color:#fff}.opt.no .ol{background:#E24B4A;color:#fff}.opt.sel .ol{background:#1D9E75;color:#fff}
+.ol{min-width:26px;height:26px;border-radius:50%;border:0.5px solid rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#73726c;flex-shrink:0;margin-top:1px}
+.ot{font-size:14px;line-height:1.5}
+.btn{padding:.6rem 1.25rem;border-radius:8px;border:0.5px solid rgba(0,0,0,0.15);background:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;color:#1a1a18}
+.btn:hover{background:#f5f5f3}.bp{background:#1D9E75;border-color:#1D9E75;color:#fff}.bp:hover{background:#0F6E56}.btn:disabled{opacity:.4;cursor:not-allowed}
+.fb{padding:1rem;border-radius:10px;margin-bottom:1rem;font-size:14px;line-height:1.6}
+.fb.ok{background:#E1F5EE;border:0.5px solid #5DCAA5;color:#085041}.fb.no{background:#FCEBEB;border:0.5px solid #F09595;color:#791F1F}
+.rf{margin-top:.5rem;font-size:12px;opacity:.8}
+.sca{width:100%;padding:.75rem 1rem;border:0.5px solid rgba(0,0,0,0.12);border-radius:10px;font-size:14px;font-family:inherit;resize:vertical;min-height:90px;color:#1a1a18}
+.sca:focus{outline:none;border-color:#1D9E75}
+.rh{text-align:center;background:#f5f5f3;border-radius:12px;padding:1.5rem;margin-bottom:1.25rem}
+.rs{font-size:50px;font-weight:500}.rsub{font-size:14px;color:#73726c;margin-top:.2rem}.rg{font-size:17px;font-weight:500;margin:.75rem 0 0}
+.sg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.25rem}
+.sc{background:#f5f5f3;border-radius:8px;padding:.75rem;text-align:center}.sv{font-size:22px;font-weight:500}.sl{font-size:11px;color:#73726c;margin-top:2px}
+.wi{background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:8px;padding:.75rem 1rem;margin-bottom:.5rem}.wt{font-size:14px;font-weight:500;margin-bottom:2px}.wd{font-size:12px;color:#73726c}
+.ri{border:0.5px solid rgba(0,0,0,0.1);border-radius:10px;overflow:hidden;margin-bottom:.6rem}
+.rh2{padding:.65rem 1rem;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px}
+.rh2.p{background:#E1F5EE;color:#085041}.rh2.f{background:#FCEBEB;color:#791F1F}
+.rb{padding:.75rem 1rem;font-size:13px;color:#5f5e5a;line-height:1.6;border-top:0.5px solid rgba(0,0,0,0.08)}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:.75rem}.nr{display:flex;gap:8px}
+.sl2{font-size:11px;font-weight:500;color:#73726c;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem;margin-top:1.25rem}
+.sbox{margin-top:.5rem;padding:.5rem .75rem;background:rgba(0,0,0,.04);border-radius:8px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header"><h1>SDR 開發流程測驗 — A3</h1><p>20 題・選擇題 18 + 情境題 2・全新題目不重複</p></div>
+  <div class="card"><div class="pb"><div class="pf" id="prog" style="width:0%"></div></div><div id="qb"></div></div>
+</div>
+<script>
+const QS=[
+{type:'mc',topic:'Cold Call',q:'你的開場白說完後，客戶沉默了 3 秒。你應該？',opts:['立刻補充更多資訊填補沉默','等對方開口，沉默是正常的思考過程','說「您有在聽嗎？」','馬上道歉說「不好意思打擾了」'],ans:1,explain:'沉默是對方在思考，不是拒絕。補充資訊反而打斷了他的思考。等待是最強的應對，讓對方自然回應。',ref:'📞 Sales Playbook > Cold Call 腳本'},
+{type:'mc',topic:'Cold Call',q:'你每天要打 80–100 通電話。什麼方法可以讓你維持話術品質而不只是機械式撥號？',opts:['每打 20 通就休息 30 分鐘','每打完 5–10 通，花 1 分鐘回顧剛才哪句話效果最好、哪句話對方反應不好','一口氣打完所有電話再回顧','看著腳本一字不差地讀'],ans:1,explain:'電話品質比數量更重要。每 5–10 通就做短暫的自我回顧（哪句話有效、哪裡被掛掉），讓每一輪都在微調，不是無腦重複。',ref:'📞 Sales Playbook > Cold Call 腳本'},
+{type:'mc',topic:'Cold Call',q:'你打電話給一家餐廳，對方說「我們不接電話行銷」。這是？',opts:['明確拒絕，應該立刻掛掉','可能是政策性擋電話，可以先說「我不是要推銷，只是想了解一下您們現在的訂位方式」再試一次','代表他們已經有系統了','代表老闆不在，是員工的說法'],ans:1,explain:'「不接電話行銷」是前台的反射性擋話，不代表決策者的真實意願。說明你不是要推銷，而是要了解他們的狀況，很多時候可以繼續對話。',ref:'📞 Sales Playbook > Cold Call > 常見卡關應對'},
+{type:'mc',topic:'Cold Call',q:'打電話最好的心態是什麼？',opts:['這通電話一定要成功，否則就是失敗','這通電話的目標只有一個：讓對方願意繼續聊或約好下次時間','要在這通電話裡直接成交','要讓對方覺得 inline 很厲害'],ans:1,explain:'每通電話只有一個目標：推進一步。不是在這通電話賣掉產品，而是讓對方願意繼續聊，或約好下次時間。有這個心態，每通電話都不會是「失敗的」。',ref:'📞 Sales Playbook > Cold Call 腳本'},
+{type:'mc',topic:'Discovery',q:'「N（需求確認）問題」為什麼比 SDR 直接說解法更有效？',opts:['因為 N 問題讓你說更多','因為客戶自己說出的需求，比你說的更有說服力，客戶更容易相信自己說的話','因為 N 問題節省時間','因為 N 問題讓你不用介紹產品'],ans:1,explain:'人們更容易相信自己說的話，而不是別人說的。N 問題讓客戶說出「如果可以解決就好了」，接下來你的產品介紹就是回應他自己的需求，不是在推銷。',ref:'📞 Sales Playbook > Discovery > SPIN'},
+{type:'mc',topic:'Discovery',q:'你在做 Discovery，客戶說了很多關於他的餐廳，但你還沒聽到任何痛點。下一步你應該？',opts:['繼續讓他說，等他自己說到痛點','用 P 問題主動引導：「您剛說到 XX，有沒有遇過什麼讓您比較頭痛的地方？」','開始介紹產品功能','問「那你需不需要我們的服務？」'],ans:1,explain:'客戶不會主動說出痛點，你要用 P 問題去挖。挑他說過的一個現況，用「有沒有遇過什麼讓您頭痛的地方？」自然轉入痛點方向。',ref:'📞 Sales Playbook > Discovery > SPIN'},
+{type:'mc',topic:'Discovery',q:'你問「您現在有沒有用什麼系統管理訂位？」客戶說「有，我們自己做了一個 Excel 表」。你的下一個問題應該是？',opts:['「Excel 很好用啊，那你不需要我們。」','「了解，Excel 表的話，如果有很多筆訂位同時進來，管理起來有沒有比較困難的地方？」','「我們有比 Excel 更好的系統。」','「那你有多少員工在維護這個 Excel？」'],ans:1,explain:'客戶說 Excel，你不能說「不好」，要挖 Excel 的使用痛點——多筆同時進來怎麼辦？有沒有出錯過？這是挖 TMS 需求的自然路徑。',ref:'📞 Sales Playbook > Discovery'},
+{type:'mc',topic:'Discovery',q:'你問完 SPIN 四種問題後，客戶說「你說的這些問題我都有，但我也不知道怎麼辦。」這代表什麼？',opts:['對方在拒絕你','對方已經承認了痛點，但還沒看到解法，這是進入產品介紹的最佳時機','你的 Discovery 失敗了','對方需要更多時間思考'],ans:1,explain:'「都有，但不知道怎麼辦」是 Discovery 的完美結尾——客戶承認了問題，並且對解法有期待。這時候自然帶出產品介紹：「我們正好是解決這些問題的……」',ref:'📞 Sales Playbook > Discovery'},
+{type:'mc',topic:'異議處理',q:'客戶說「我朋友用過你們系統，說沒什麼用。」你應該？',opts:['說「你朋友弄錯了」','說「很抱歉聽到這樣的經驗。可以請問是哪方面讓他覺得沒用？這樣我可以更了解是不是跟您的狀況有關。」','說「那是特例，我們其他客戶都很滿意」','沉默，不知道怎麼回'],ans:1,explain:'不要否認或說對方朋友弄錯了。先承認這個回饋，再問具體是什麼問題，才能判斷是不是跟這個客戶的情況相關。很多時候朋友的狀況跟眼前這個客戶完全不同。',ref:'🚫 Objection Handling'},
+{type:'mc',topic:'異議處理',q:'客戶說「我需要一週時間考慮。」一週後你跟進，應該怎麼開場？',opts:['「您考慮得怎麼樣了？」','「上週您說需要一點時間評估，我想了解一下，有沒有什麼資訊是我可以補充的？」','「您決定了嗎？」','重新從開場白說起，假裝上次沒發生'],ans:1,explain:'跟進要有連結感，讓對方知道你記得上次的對話。「有沒有資訊可以補充」是低壓力的切入，讓對方說出還在考慮的點，而不是被問「決定了嗎」而感到壓迫。',ref:'🚫 Objection Handling > Chapter 5'},
+{type:'mc',topic:'異議處理',q:'哪一個是「真正的異議」，不是拖延或反射性拒絕？',opts:['「現在很忙」','「你寄資料給我就好」','「我們剛簽了三年的合約，還有兩年」','「再想想」'],ans:2,explain:'「剛簽了三年合約，還有兩年」是真實的障礙——有時間和財務的實際限制。其他三個都是拖延型或反射型，可以繼續推進。真實障礙需要不同的應對：問什麼時候合約到期，排未來的跟進。',ref:'🚫 Objection Handling'},
+{type:'mc',topic:'異議處理',q:'你用 Feel/Felt/Found 處理了「太貴」的異議，客戶還是說「就是貴。」下一步是？',opts:['再說一次 Feel/Felt/Found','問「我理解，可以請問您覺得這個問題值多少錢來解決？」讓對方說出他的價值認知','直接報折扣','說「那我們沒辦法幫到您了」'],ans:1,explain:'異議沒解決時，最好的辦法是讓對方說出他的價值認知。「您覺得這個問題值多少錢來解決？」讓對方自己建立 ROI 框架，比你說更有效。',ref:'🚫 Objection Handling > Chapter 2'},
+{type:'mc',topic:'競品應對',q:'你完全不認識客戶提到的某個系統，你應該怎麼辦？',opts:['說「那個系統不好」','裝作知道，繼續說話','說「您用他們主要是哪個功能最多？」先問功能，爭取時間，回來再查','說「我不認識那個系統」然後繼續介紹自家產品'],ans:2,explain:'承認不認識某個系統沒有問題，但先問功能是更好的策略——你了解了客戶在那個系統得到什麼，才能找到我們補充的地方。',ref:'🆚 Competitor > 遇到不熟悉的競品'},
+{type:'mc',topic:'競品應對',q:'客戶說「Eatsy 幫我管訂位，用起來還不錯。」你應該？',opts:['說「Eatsy 很多問題，你應該換掉」','「Eatsy 在訂位曝光這塊很強。我想請問一下，透過 Eatsy 訂位的客人，您能不能直接取得他們的聯絡方式、後續做行銷？」','說「我們比 Eatsy 有更多功能」','說「那你不需要我們了」'],ans:1,explain:'Eatsy 的核心弱點是客人資料歸平台，不歸店家。問「能不能取得客人聯絡方式」讓對方自己意識到這個限制，是打開 inline 討論的最好切入點。',ref:'🆚 Competitor > vs Eatsy'},
+{type:'mc',topic:'資格篩選',q:'你打給一家剛開幕一週的餐廳，老闆很熱情，什麼都說「好、有興趣」，但說目前手頭很緊。這個 lead 的正確處理是？',opts:['立刻 Meeting Set，趁熱打鐵','標記為「潛力 lead，三個月後跟進」，因為剛開幕沒預算，但有需求和意願','放棄，沒預算的不用跟','立刻約見面，帶免費試用方案'],ans:1,explain:'剛開幕的餐廳通常沒有立即預算，但有需求和意願是好訊號。不是放棄，而是標記好時間點，等他穩定之後再回來，這種 lead 成交率反而高。',ref:'📞 Sales Playbook > 資格篩選'},
+{type:'mc',topic:'資格篩選',q:'一個 lead Discovery 完成後，你發現對方的決策者是店長，但「最終要老闆批准才行」。這個情況你應該？',opts:['放棄，老闆不在就不談','繼續跟店長推進，同時問「老闆有沒有機會可以讓我也跟他說說？」，爭取接觸決策者','直接繞過店長找老闆','等店長去說服老闆'],ans:1,explain:'多層決策者很常見。店長是內部推手，老闆是決策者。最好的策略是同時推進：幫店長準備說服老闆的資料，並且爭取機會直接接觸老闆。',ref:'📞 Sales Playbook > 資格篩選'},
+{type:'mc',topic:'SOP',q:'你設了一個 Meeting，但客戶在 Meeting 前一天突然說要取消。你應該怎麼做？',opts:['接受取消，等對方再聯絡','問「是什麼原因？」確認是臨時有事還是興趣退了，同時提出重新約時間','說「好的，再見」','立刻問有沒有其他人可以接替開會'],ans:1,explain:'取消 Meeting 要先了解原因——是真的有事（下週還願意）還是興趣退了（需要重新處理異議）？不問原因就接受，很可能這個 lead 就冷了。',ref:'⚙️ SOP > Meeting Set 交接'}},
+{type:'sc',topic:'Cold Call',context:'你今天已經打了 60 通電話，只有 4 通有人接，設了 0 個 Meeting。下午 4 點，你開始對自己的開場白失去信心，覺得「是不是話術本身有問題」。',q:'這個時候你應該如何做自我診斷？請列出你會回顧哪三件事，以及你會怎麼調整下午剩下的 1.5 小時。',placeholder:'例如：「我會先回顧今天接通的 4 通，哪一句話讓對方掛掉……」',rubric:['不是繼續硬打，不做任何調整','回顧接通的那幾通找出具體被掛掉的原因','說明接下來 1.5 小時的具體策略（時段、開場白調整）','心態上有「診斷問題」而不是「放棄或怪環境」的框架']}
+{type:'sc',topic:'資格篩選',context:'你做完 Discovery，發現客戶有漏接電話的問題，也有 LINE 官帳，但他說「我現在生意很好，不覺得有急迫需要改什麼。」',q:'客戶沒有急迫感（sense of urgency），但你判斷他是符合 ICP 的 lead。用 SPIN 的 I 問法，製造他自己的急迫感，讓他意識到現在的狀況有潛在風險。請打出你的回應。',placeholder:'例如：「您說生意很好，那請問尖峰時段大概一天有幾通電話……」',rubric:['沒有說「你應該要緊張」','用問題引導客戶自己算出損失或風險','問到具體數字（漏接幾通、影響多少桌）','結尾讓客戶自己說出「有一點擔心」或「有這個問題」']},
+{type:'sc',topic:'SOP',context:'你設了一個 Meeting，交接資料給 AE。AE 看完資料後問你：「這個客戶的最大痛點是什麼？他在意的是訂位還是客服？」你回答不出來，因為 Discovery 時沒有問清楚。',q:'這個情況下你應該怎麼做？包含如何補救，和下次避免同樣問題的做法。',placeholder:'例如：「我這邊先主動聯絡客戶補問清楚……」',rubric:['主動認責，不推卸給 AE 或客戶','說明如何補救（自己去問清楚，不要讓 AE 重新 Discovery）','說明下次如何避免（Discovery 完成標準的 checklist）','態度誠懇，有具體行動']},
+];
+const AK='';
+let cur=0,score=0,answers=[],sel=null;
+const MC=QS.filter(q=>q.type==='mc').length,SC=QS.filter(q=>q.type==='sc').length,total=QS.length;
+function setProg(){document.getElementById('prog').style.width=(cur/total*100)+'%'}
+function render(){setProg();QS[cur].type==='mc'?renderMC():renderSC();}
+function renderMC(){const q=QS[cur];const L=['A','B','C','D'];document.getElementById('qb').innerHTML=`<div class="qm"><span class="qb bmc">選擇題</span><span class="qn">${cur+1}/${total}</span><span class="qn" style="margin-left:auto">${q.topic}</span></div><div class="qt">${q.q}</div><div class="opts">${q.opts.map((o,i)=>`<div class="opt" id="o${i}" onclick="pick(${i})"><div class="ol">${L[i]}</div><div class="ot">${o}</div></div>`).join('')}</div><div id="fb"></div><div class="nav"><span id="hint" style="font-size:13px;color:#73726c">選一個答案</span><div class="nr"><button class="btn bp" id="cbtn" onclick="confirm2()" style="display:none">確認答案</button><button class="btn bp" id="nbtn" onclick="nextQ()" style="display:none">${cur===total-1?'看成績':'下一題 →'}</button></div></div>`;sel=null;}
+function pick(i){if(document.getElementById('nbtn').style.display!=='none')return;document.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));document.getElementById('o'+i).classList.add('sel');sel=i;document.getElementById('cbtn').style.display='inline-block';document.getElementById('hint').textContent='';}
+function confirm2(){if(sel===null)return;const q=QS[cur];const ok=sel===q.ans;if(ok)score++;answers.push({idx:cur,type:'mc',correct:ok,q});document.querySelectorAll('.opt').forEach((el,i)=>{if(i===q.ans)el.classList.add('ok');else if(i===sel&&!ok)el.classList.add('no');});document.getElementById('fb').innerHTML=`<div class="fb ${ok?'ok':'no'}">${ok?'<strong>正確</strong>':'<strong>答錯了</strong> — 正確答案是 <strong>'+['A','B','C','D'][q.ans]+'</strong>'}<br>${q.explain}<div class="rf">複習：${q.ref}</div></div>`;document.getElementById('cbtn').style.display='none';document.getElementById('nbtn').style.display='inline-block';}
+function renderSC(){const q=QS[cur];document.getElementById('qb').innerHTML=`<div class="qm"><span class="qb bsc">情境題</span><span class="qn">${cur+1}/${total}</span><span class="qn" style="margin-left:auto">${q.topic}</span></div><div class="qctx">${q.context}</div><div class="qt">${q.q}</div><div style="font-size:13px;color:#73726c;margin-bottom:.5rem">你的回應</div><textarea class="sca" id="sca" placeholder="${q.placeholder}" oninput="chk()"></textarea><div style="font-size:12px;color:#73726c;margin-top:.4rem">沒有標準答案，AI 根據評分標準逐項批改</div><div id="fb" style="margin-top:1rem"></div><div class="nav" style="margin-top:1rem"><span></span><div class="nr" id="scnav"><button class="btn bp" id="scbtn" onclick="submitSC()" disabled>AI 批改</button></div></div>`;}
+function chk(){const b=document.getElementById('scbtn');if(b)b.disabled=document.getElementById('sca').value.trim().length<10;}
+async function submitSC(){const q=QS[cur];const ans=document.getElementById('sca').value.trim();const btn=document.getElementById('scbtn');btn.disabled=true;btn.textContent='批改中…';const prompt=`你是 inline（台灣餐廳 SaaS）SDR 主管，正在批改新人話術練習。\n\n情境：${q.context}\n問題：${q.q}\n學員回答：${ans}\n\n評分標準（每項 1 分）：\n${q.rubric.map((r,i)=>`${i+1}. ${r}`).join('\n')}\n\n請用繁體中文回覆，只輸出 JSON：\n{"score":數字,"total":${q.rubric.length},"passed":[通過編號從1開始],"missed":[未通過編號],"comment":"2-3句評語","suggestion":"30字以內更好話術"}`;try{const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':AK,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]})});const data=await res.json();const r=JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim());const ok=r.score>=Math.ceil(q.rubric.length*0.6);if(ok)score+=0.5;answers.push({idx:cur,type:'sc',correct:ok,result:r,q});document.getElementById('fb').innerHTML=`<div class="fb ${ok?'ok':'no'}"><strong>${ok?'通過':'需要加強'}</strong> — ${r.score}/${r.total} 分<br>${r.comment}<div class="sbox"><strong>更好的說法：</strong>${r.suggestion}</div>${r.passed.length?`<div class="rf">達成：${r.passed.map(i=>q.rubric[i-1]).join('、')}</div>`:''}</div>`;btn.style.display='none';const nb=document.createElement('button');nb.className='btn bp';nb.textContent=cur===total-1?'看成績':'下一題 →';nb.onclick=nextQ;document.getElementById('scnav').appendChild(nb);}catch(e){btn.disabled=false;btn.textContent='AI 批改';document.getElementById('fb').innerHTML='<div class="fb no">批改失敗，請再試一次。</div>';}}
+function nextQ(){cur++;cur>=total?showResult():render();}
+function showResult(){document.getElementById('prog').style.width='100%';const mcOk=answers.filter(a=>a.type==='mc'&&a.correct).length;const scOk=answers.filter(a=>a.type==='sc'&&a.correct).length;const pct=Math.round((score/(MC+SC*0.5))*100);let grade,gc;if(pct>=85){grade='優秀 — 可以獨立作業';gc='#085041'}else if(pct>=70){grade='良好 — 還有幾個環節要加強';gc='#633806'}else{grade='需要加強 — 建議重新複習弱項';gc='#791F1F'}const tm={};answers.forEach(a=>{if(!tm[a.q.topic])tm[a.q.topic]={p:0,t:0};tm[a.q.topic].t++;if(a.correct)tm[a.q.topic].p++;});const weak=Object.entries(tm).filter(([,v])=>v.p/v.t<0.6);const refs={'Cold Call':'📞 Sales Playbook > Cold Call','Discovery':'📞 Sales Playbook > Discovery','異議處理':'🚫 Objection Handling','競品應對':'🆚 Competitor','資格篩選':'📞 Sales Playbook > 資格篩選','SOP':'⚙️ SOP'};const rev=answers.map((a,i)=>{const body=a.type==='mc'&&!a.correct?`<div class="rb">${a.q.explain}<br><span style="color:#1D9E75;font-size:12px;display:block;margin-top:4px">複習：${a.q.ref}</span></div>`:'';return `<div class="ri"><div class="rh2 ${a.correct?'p':'f'}">${a.correct?'✓':'✗'} Q${i+1} ${a.q.topic}${a.type==='sc'?' 情境':''} — ${a.correct?'正確':'答錯'}</div>${body}</div>`;}).join('');document.getElementById('qb').innerHTML=`<div class="rh"><div class="rs">${pct}<span style="font-size:22px;color:#73726c">分</span></div><div class="rsub">選擇題 ${mcOk}/${MC} ・情境題 ${scOk}/${SC} 通過</div><div class="rg" style="color:${gc}">${grade}</div></div><div class="sg"><div class="sc"><div class="sv">${mcOk}/${MC}</div><div class="sl">選擇題</div></div><div class="sc"><div class="sv">${scOk}/${SC}</div><div class="sl">情境題</div></div><div class="sc"><div class="sv">${Object.keys(tm).length-weak.length}/${Object.keys(tm).length}</div><div class="sl">主題通過</div></div></div>${weak.length?`<div class="sl2">建議複習</div>${weak.map(([t])=>`<div class="wi"><div class="wt">${t}</div><div class="wd">${refs[t]||t}</div></div>`).join('')}`:'<div style="font-size:14px;color:#085041;background:#E1F5EE;padding:.75rem 1rem;border-radius:10px;margin-bottom:1rem">所有主題都通過了！</div>'}<div class="sl2" style="margin-top:1.5rem">每題回顧</div>${rev}<div style="margin-top:1.5rem"><button class="btn" onclick="restart()">↺ 重新考一次</button></div>`;}
+function restart(){cur=0;score=0;answers=[];sel=null;render();}
+render();
+</script>
+</body>
+</html>
